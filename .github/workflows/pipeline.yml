@@ -24,7 +24,7 @@ jobs:
         run: docker build -t month2-app .
 
       - name: Run Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0	
         with:
           image-ref: 'month2-app'
           severity: 'CRITICAL,HIGH'
