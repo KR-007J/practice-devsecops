@@ -1,7 +1,152 @@
 # practice-devsecops
 
 
+# Practice DevSecOps — Month 1: Linux Security Toolkit
 
+A Linux hardening and auditing toolkit combining a Python security scanner with a Bash hardening script, validated using Lynis before/after benchmarking.
+
+---
+
+## What This Project Demonstrates
+
+- Practical Linux security auditing (SUID binaries, world-writable files, privileged accounts)
+- Automated system hardening (SSH configuration, firewall rules)
+- Measurable security improvement using an industry-standard benchmarking tool (Lynis)
+- Comfort with file permissions, user/group management, and shell scripting
+
+---
+
+## Project Structure
+
+```
+month1-toolkit/
+├── audit.py              # Python script: finds security misconfigurations, outputs JSON
+├── harden.sh              # Bash script: hardens SSH + basic firewall rules
+├── lynis-before.txt        # Lynis scan output before hardening
+├── lynis-after.txt         # Lynis scan output after hardening
+├── README.md
+```
+
+*(Adjust file names above to match your actual filenames.)*
+
+---
+
+## Tech Stack
+
+| Tool | Purpose |
+|---|---|
+| Python 3 | Audit script — finds SUID binaries, world-writable files, UID=0 accounts |
+| Bash | Hardening script — SSH config, firewall rules |
+| Lynis | Security benchmarking — before/after scoring |
+| Linux (CachyOS / Arch-based) | Target OS for hardening |
+
+---
+
+## What the Audit Script Checks
+
+| Check | Why it matters |
+|---|---|
+| SUID/SGID binaries | Programs that run with owner's (often root) privileges — common privilege escalation vector if misconfigured or outdated |
+| World-writable files | Any user can modify these — risk of tampering, backdoor insertion |
+| UID=0 accounts | Multiple accounts with root privileges (UID 0) beyond the default `root` user — hidden backdoor accounts |
+
+Output format: structured JSON, so results can be parsed, diffed over time, or fed into other tooling — not just a human-readable printout.
+
+---
+
+## What the Hardening Script Does
+
+- **SSH hardening**: disables root login, disables password authentication (key-only), changes default port if configured, restricts allowed users
+- **Basic firewall rules**: default-deny inbound, explicit allow rules for required services only
+
+Run in a single pass, idempotent where possible (safe to re-run without breaking existing config).
+
+---
+
+## Results
+
+**Lynis hardening index — before vs after:**
+
+| Metric | Before | After |
+|---|---|---|
+| Lynis hardening index | *(fill in your before score)* | *(fill in your after score)* |
+| Warnings | *(fill in)* | *(fill in)* |
+| Suggestions | *(fill in)* | *(fill in)* |
+
+*(Run `lynis audit system` before and after hardening, screenshot or save the output, and fill in the real numbers here — this comparison is the single most convincing part of this project for reviewers.)*
+
+---
+
+## How to Run
+
+```bash
+git clone https://github.com/KR-007J/practice-devsecops.git
+cd practice-devsecops/month1-toolkit
+
+# Run the audit (read-only, safe to run anytime)
+python3 audit.py
+
+# Review findings, then run hardening (modifies system config — review harden.sh first)
+sudo bash harden.sh
+
+# Verify improvement
+sudo lynis audit system
+```
+
+⚠️ **Run `harden.sh` only on a VM or disposable environment first** — it modifies SSH and firewall configuration and could lock you out if misconfigured.
+
+---
+
+## Key Security Decisions (and Why)
+
+### 1. JSON output instead of plain text
+Structured output means the audit results can be version-controlled, diffed between runs, or piped into other tools (e.g., a future CI pipeline stage) — not just read once and discarded.
+
+### 2. Separating audit (read-only) from hardening (system-modifying)
+The audit script never changes anything — it only reports. The hardening script is a separate, explicit step. This separation means you can safely run the audit repeatedly (e.g., in a cron job or CI check) without any risk of accidentally modifying a system.
+
+### 3. Using Lynis for validation instead of just "trust me"
+Anyone can claim a script "hardens" a system. Lynis gives an objective, third-party-validated hardening score — the before/after comparison is proof, not a claim.
+
+---
+
+## What I'd Add With More Time
+
+- Convert the audit script into a scheduled check (cron or systemd timer) with alerting on drift
+- Add automated remediation suggestions with severity ranking
+- Extend checks to include: unnecessary running services, weak file permissions on sensitive config files (`/etc/shadow`, `/etc/ssh/sshd_config`), unpatched packages
+- Package as a CLI tool with proper argument parsing (`argparse`) instead of a single-run script
+
+---
+
+## Interview Q&A
+
+**Q: Walk me through this project.**
+A: It's a two-part Linux hardening toolkit. A Python script audits the system read-only — checking for SUID/SGID binaries, world-writable files, and unexpected UID=0 accounts — and outputs structured JSON. A separate Bash script then hardens SSH configuration and applies basic firewall rules. I validated the improvement using Lynis, a standard Linux security auditing tool, comparing the hardening index before and after.
+
+**Q: Why check for SUID/SGID binaries specifically?**
+A: SUID binaries run with the file owner's privileges rather than the executing user's — if owned by root, any user executing that binary temporarily gains root-level capability for that program. Outdated or misconfigured SUID binaries are a classic privilege escalation vector, so auditing which binaries have this bit set is a standard first step in a Linux security review.
+
+**Q: Why separate the audit script from the hardening script instead of combining them?**
+A: Separation of concerns and safety. The audit is read-only and idempotent — safe to run anytime, even repeatedly, with zero risk. The hardening script modifies system state (SSH config, firewall), which is a higher-risk, one-directional action. Keeping them separate means you can audit as often as you want without ever accidentally changing something, and the hardening step is a deliberate, reviewable action.
+
+**Q: What's the risk with world-writable files?**
+A: Any local user — or, worse, a compromised low-privilege process — can modify a world-writable file. If that file is a script that later gets executed with higher privileges, a cron job, or a config file read by a privileged service, it becomes a path to tampering or privilege escalation. Auditing for these files surfaces configuration drift or misconfigurations that are easy to introduce accidentally.
+
+**Q: Why did you use Lynis instead of just describing what your script does?**
+A: Because a third-party, widely-used benchmarking tool gives an objective before/after score rather than a self-reported claim. Anyone reviewing this project can independently verify the improvement is real, not just take my word for it — that's the difference between "I wrote a hardening script" and "I improved this measurable security posture."
+
+**Q: What would you change before running this in production?**
+A: I'd add logging and alerting so audit findings don't just sit in a JSON file — they'd feed into a monitoring system. I'd also make the hardening script strictly idempotent and add a dry-run mode, since blindly re-applying firewall or SSH changes without checking current state risks lockouts. And I'd test extensively on a disposable VM before ever running it against a real system, which is exactly how I approached it here.
+
+**Q: What's the difference between SUID and SGID?**
+A: SUID (Set User ID) makes a program run with the file owner's user privileges. SGID (Set Group ID) makes it run with the file's group privileges instead — or, on a directory, makes new files inside inherit the directory's group rather than the creating user's primary group. Both are legitimate mechanisms (e.g., `passwd` needs SUID root to modify `/etc/shadow`), but unnecessary or misconfigured SUID/SGID bits are a common audit finding.
+
+---
+
+## Author
+
+Krish Joshi — B.Tech CSE (Cybersecurity), building toward a DevSecOps career.
 
 
 
