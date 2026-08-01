@@ -6,4 +6,4 @@ def home():
     return {"status": "ok", "message": "Security Header Scanner - coming soon"}
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000)  # nosec B104 - required for Docker container networking
