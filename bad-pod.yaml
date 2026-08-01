@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-privileged-pod
+spec:
+  containers:
+    - name: bad-container
+      image: nginx
+      securityContext:
+        privileged: true
