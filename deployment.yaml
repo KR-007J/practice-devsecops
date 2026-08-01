@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: month2-app
+  labels:
+    app: month2-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: month2-app
+  template:
+    metadata:
+      labels:
+        app: month2-app
+    spec:
+      containers:
+        - name: month2-app
+          image: month2-app:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
