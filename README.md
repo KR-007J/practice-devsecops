@@ -352,7 +352,249 @@ A: A CVE (Common Vulnerabilities and Exposures) is a unique identifier for a spe
 A: Each instruction in a Dockerfile creates a cached layer. Docker reuses a layer if nothing above it changed. By copying `requirements.txt` and running `pip install` before copying the rest of the source code, changes to application code don't invalidate the dependency-install layer — so rebuilds are much faster since Docker doesn't reinstall unchanged dependencies every time.
 
 ---
+# Practice DevSecOps — Month 3: Cloud (AWS) + Threat Modeling
 
+Hands-on AWS fundamentals — IAM, VPC networking, and security groups — practiced using LocalStack (a local AWS simulator), paired with a formal STRIDE threat model applied to the Month 2 CI/CD pipeline.
+
+---
+
+## Why LocalStack Instead of Real AWS
+
+Real AWS requires a credit/debit card for signup. To avoid billing risk while still learning genuine AWS mechanics, this project uses **LocalStack** — a Docker container that simulates AWS APIs locally. Every command shown here uses the real `aws` CLI; only the endpoint differs (`http://localhost:4566` instead of AWS's real endpoints). The IAM policy JSON, ARN structure, and VPC/subnet concepts are identical to real AWS and transfer directly.
+
+**Known limitation, stated honestly:** LocalStack's free Community edition stores and returns IAM policies correctly but does not fully enforce policy evaluation on most API calls (that's a Pro-tier feature). This is noted explicitly wherever relevant below — the policy-writing skill is real, the live enforcement testing is a real AWS activity for later.
+
+---
+
+## What This Project Demonstrates
+
+- AWS account security fundamentals (Shared Responsibility Model, root vs IAM)
+- Writing correct IAM policy JSON from scratch (Effect/Action/Resource/Condition)
+- The difference between IAM Users and IAM Roles, and why roles are preferred for workloads
+- Trust policies and the `sts:AssumeRole` mechanism
+- VPC design: public vs private subnet separation
+- Security Groups vs Network ACLs (stateful vs stateless firewalls)
+- Structured threat modeling using STRIDE, applied to a real system
+
+---
+
+## Environment Setup
+
+```bash
+# Install AWS CLI
+sudo pacman -S aws-cli
+
+# Run LocalStack (pinned to a free community version)
+docker run -d --name localstack -p 4566:4566 -p 4510-4559:4510-4559 localstack/localstack:3.8
+
+# Configure CLI (fake credentials work — LocalStack doesn't validate them)
+aws configure
+# AWS Access Key ID: test
+# AWS Secret Access Key: test
+# Default region: us-east-1
+# Output format: json
+
+# Alias for convenience (add to ~/.config/fish/config.fish)
+alias awslocal="aws --endpoint-url=http://localhost:4566"
+```
+
+---
+
+## Project Structure
+
+```
+month3-aws/
+├── s3-readonly-policy.json   # Least-privilege IAM policy (S3 read-only, one bucket)
+├── trust-policy.json          # IAM role trust policy (EC2 service principal)
+├── README.md
+└── (VPC/subnet/security group resources created via CLI, not files)
+
+month2-app/
+└── threat-model.md            # STRIDE analysis of the CI/CD pipeline
+```
+
+---
+
+## Part 1: IAM — Identity and Access Management
+
+### Core concept: the Shared Responsibility Model
+
+AWS secures the cloud infrastructure (hardware, hypervisor, physical data centers). The customer secures everything *in* the cloud — IAM permissions, network configuration, data encryption, and application security. Most real cloud breaches trace back to customer-side misconfiguration, not AWS infrastructure failure.
+
+### IAM Users vs IAM Roles
+
+| | IAM User | IAM Role |
+|---|---|---|
+| Credentials | Long-lived (password, access keys) | Temporary (auto-expiring, ~1 hour) |
+| Best for | Human operators | Applications, EC2 instances, cross-account access |
+| Risk profile | Higher — leaked keys stay valid until manually rotated | Lower — leaked credentials expire quickly |
+
+**Practice:** Created `krish-s3-reader` IAM user with a least-privilege policy granting only `s3:GetObject` and `s3:ListBucket` on a single named bucket — not `AdministratorAccess`.
+
+```bash
+awslocal iam create-user --user-name krish-s3-reader
+awslocal iam put-user-policy \
+  --user-name krish-s3-reader \
+  --policy-name S3ReadOnlyAccess \
+  --policy-document file://s3-readonly-policy.json
+```
+
+### IAM Policy Anatomy
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::krish-devsecops-bucket",
+        "arn:aws:s3:::krish-devsecops-bucket/*"
+      ]
+    }
+  ]
+}
+```
+Two Resource ARNs are required for S3: the bucket ARN itself (for `ListBucket`) and the wildcard object path (for `GetObject`) — a commonly confused detail.
+
+### Roles and Trust Policies
+
+A role has two documents: a **trust policy** (who can assume it) and a **permission policy** (what it can do once assumed).
+
+```bash
+awslocal iam create-role \
+  --role-name EC2-S3-ReadOnly-Role \
+  --assume-role-policy-document file://trust-policy.json
+
+awslocal iam put-role-policy \
+  --role-name EC2-S3-ReadOnly-Role \
+  --policy-name S3ReadOnlyAccess \
+  --policy-document file://s3-readonly-policy.json
+```
+
+**Why roles matter for real workloads:** when an EC2 instance assumes a role, AWS STS issues temporary credentials automatically via the instance metadata service — no hardcoded keys in application code, no manual rotation needed.
+
+---
+
+## Part 2: VPC and Network Security
+
+### VPC hierarchy
+
+```
+VPC (10.0.0.0/16)
+ ├── Public Subnet (10.0.1.0/24)  → route to internet, hosts web-facing resources
+ └── Private Subnet (10.0.2.0/24) → no direct internet route, hosts databases/internal services
+```
+
+**Practice:** Built a custom VPC with explicit public/private subnet separation — not relying on the account's auto-created default VPC (which most production security audits flag as a red flag if actively used).
+
+```bash
+awslocal ec2 create-vpc --cidr-block 10.0.0.0/16 \
+  --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=krish-devsecops-vpc}]'
+
+awslocal ec2 create-subnet --vpc-id vpc-92739487 --cidr-block 10.0.1.0/24 \
+  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=public-subnet}]'
+
+awslocal ec2 create-subnet --vpc-id vpc-92739487 --cidr-block 10.0.2.0/24 \
+  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=private-subnet}]'
+```
+
+### Security Groups vs Network ACLs
+
+| | Security Group | Network ACL |
+|---|---|---|
+| Scope | Per-instance | Per-subnet |
+| Statefulness | Stateful (return traffic auto-allowed) | Stateless (explicit rules both ways) |
+| Rule types | Allow only | Allow and Deny |
+
+**Practice:** Created a security group allowing inbound HTTPS (443) from anywhere — appropriate for a public web server, but a red flag if applied to SSH (22) or RDP (3389) instead.
+
+```bash
+awslocal ec2 create-security-group --group-name web-sg \
+  --description "Security group for web servers - HTTPS only" \
+  --vpc-id vpc-92739487
+
+awslocal ec2 authorize-security-group-ingress \
+  --group-id sg-13150e4eb0666c41d \
+  --protocol tcp --port 443 --cidr 0.0.0.0/0
+```
+
+---
+
+## Part 3: Threat Modeling (STRIDE)
+
+Applied Microsoft's STRIDE framework to the Month 2 CI/CD pipeline — see [`threat-model.md`](../month2-app/threat-model.md) for the full document.
+
+| STRIDE Category | Threat Example | Mitigation |
+|---|---|---|
+| Spoofing | Compromised contributor account pushes malicious code | MFA, branch protection, signed commits |
+| Tampering | Malicious dependency or workflow file edit | Pinned versions, PR review on workflow files |
+| Repudiation | No record of who approved a risky change | Immutable GitHub Actions audit logs |
+| Information Disclosure | Secrets leaked in build logs | Secret masking, Gitleaks scanning |
+| Denial of Service | Pipeline resource exhaustion | Branch protection, job timeouts |
+| Elevation of Privilege | Compromised dependency gains runner-level access | Trivy/Bandit gating, scoped tokens |
+
+---
+
+## Extra Topics Worth Knowing (Not Deeply Covered Yet, But Real)
+
+These are things that exist in the AWS/cloud security world and will come up in interviews or on the job, even though this month's roadmap deliberately kept scope tight (depth over breadth). Awareness now, depth later:
+
+| Topic | What it is | Why it matters |
+|---|---|---|
+| **AWS CloudTrail** | Logs every API call made in your account | The audit trail for "who did what, when" — essential for incident response and compliance |
+| **AWS Config** | Continuously tracks resource configuration and flags drift from a defined baseline | Used to detect if someone manually changes a security group or IAM policy outside of approved process |
+| **AWS KMS (Key Management Service)** | Manages encryption keys for data at rest | Almost every AWS service (S3, EBS, RDS) integrates with KMS for encryption — foundational for data protection |
+| **AWS WAF (Web Application Firewall)** | Filters malicious HTTP traffic before it reaches your app (SQLi, XSS patterns) | Sits in front of load balancers/CloudFront — a common defense layer for public web apps |
+| **Terraform** | Infrastructure-as-Code tool (not AWS-specific) | Lets you define VPCs, IAM roles, EC2 instances as version-controlled code instead of manual console clicks — deliberately deferred to later in this roadmap, but extremely commonly required in job postings |
+| **AWS Organizations + Service Control Policies (SCPs)** | Account-level guardrails that even admins can't override | Real enterprises use this to enforce "no one can ever disable CloudTrail," etc. — explains why Explicit Deny always wins in IAM evaluation |
+| **VPC Peering / Transit Gateway** | Connecting multiple VPCs together securely | Relevant once you're managing more than one VPC (multi-environment: dev/staging/prod) |
+| **AWS GuardDuty** | Managed threat detection service (analyzes CloudTrail, VPC flow logs, DNS logs for malicious activity) | The "SOC in a box" managed service — good to know exists even if not hands-on yet |
+| **Instance Metadata Service v2 (IMDSv2)** | Hardened version of the EC2 metadata endpoint | Directly relevant to the Capital One 2019 breach reference in the threat model — IMDSv2 requires session tokens, preventing the SSRF-to-credential-theft attack pattern used in that incident |
+
+---
+
+## Interview Q&A
+
+**Q: Explain the AWS Shared Responsibility Model.**
+A: AWS is responsible for security *of* the cloud — physical infrastructure, hypervisor, host OS on managed services. The customer is responsible for security *in* the cloud — IAM configuration, network settings, data encryption, and application-level security. The boundary shifts depending on the service: for EC2 (IaaS), I patch the guest OS; for Lambda (serverless), AWS handles the runtime entirely and I'm only responsible for my code and its permissions.
+
+**Q: What's the difference between an IAM user and an IAM role?**
+A: An IAM user has long-lived credentials meant for a human or a fixed application identity. An IAM role issues temporary, auto-expiring credentials and is meant to be "assumed" by something — an EC2 instance, a Lambda function, or another account. Roles are preferred for workloads because temporary credentials drastically reduce the exploitation window if they ever leak, versus a permanent access key sitting in a config file indefinitely.
+
+**Q: What does a trust policy do, versus a permission policy?**
+A: A trust policy defines who or what is allowed to assume a role — the Principal and the `sts:AssumeRole` action. A permission policy defines what that role can actually do once assumed — the usual Effect/Action/Resource structure. They're separate documents because "who can walk through the door" and "what they can do once inside" are different concerns.
+
+**Q: Why separate public and private subnets in a VPC?**
+A: Resources that need to receive traffic directly from the internet — like a web server — go in a public subnet, which has a route to an Internet Gateway. Resources that should never be directly internet-reachable — like a database — go in a private subnet, only reachable from within the VPC. This limits the attack surface: even if the web server is compromised, the database isn't directly exposed to the internet.
+
+**Q: Security Groups vs Network ACLs — what's the real difference?**
+A: Security Groups are stateful and apply per-instance — if you allow inbound traffic, the response is automatically allowed out, and you can only write Allow rules. NACLs are stateless and apply per-subnet — you must explicitly allow both directions, and you can write both Allow and Deny rules. I use Security Groups as my primary, fine-grained control, and NACLs as a coarser secondary layer, mainly when I need an explicit Deny.
+
+**Q: What is STRIDE and why use it?**
+A: STRIDE is a structured threat modeling framework — Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Instead of reactively guessing what could go wrong, it forces a systematic walk-through of six specific threat categories for every component in a system. I applied it to my CI/CD pipeline and produced a documented threat-model.md covering real threats like dependency tampering and secret leakage, each with a concrete mitigation already in place or planned.
+
+**Q: Walk me through one real threat you identified and its mitigation.**
+A: Under Elevation of Privilege, I identified that a compromised PyPI dependency could execute arbitrary code during `pip install`, running with the CI runner's permissions and potentially exfiltrating the `GITHUB_TOKEN`. My mitigation is that Trivy and Bandit run specifically to catch known-vulnerable or suspicious dependencies before later pipeline stages, and I'm planning to further scope `GITHUB_TOKEN` permissions to read-only via the workflow's `permissions:` block, since the current setup uses broader default permissions than strictly necessary.
+
+**Q: You used LocalStack instead of real AWS — how do you know your skills transfer?**
+A: LocalStack simulates the actual AWS API surface — the CLI commands, IAM policy JSON syntax, and ARN structure are byte-for-byte identical to real AWS, only the endpoint URL differs. The main gap is that LocalStack's free tier doesn't fully enforce IAM policy evaluation at runtime, which is a known limitation I verified directly by testing an unauthorized write action that should have failed but didn't. The policy-writing and architecture skills are real and directly transferable; live enforcement testing is something I'd validate on real AWS next.
+
+---
+
+## What I'd Add With More Time
+
+- Real AWS account (via AWS Educate) to validate actual IAM policy enforcement
+- Terraform to define this VPC/IAM setup as version-controlled Infrastructure-as-Code instead of imperative CLI commands
+- CloudTrail + GuardDuty integration for the threat model's Repudiation and Detection mitigations
+- IMDSv2 enforcement demonstration, directly tied to the Capital One breach pattern referenced in the threat model
+
+---
+
+## Author
+
+Krish Joshi — B.Tech CSE (Cybersecurity), building toward a DevSecOps career.
 ## Author
 
 Krish Joshi — B.Tech CSE (Cybersecurity), building toward a DevSecOps career.
