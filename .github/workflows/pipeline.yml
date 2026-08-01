@@ -34,7 +34,7 @@ jobs:
       - name: Test secret usage
         env:
           MY_SECRET: ${{ secrets.DEMO_SECRET }}
-        run: echo "Secret loaded (length: ${#MY_SECRET})"
+        run: echo "Secret loaded successfully"
 
       - name: Build Docker image
         run: docker build -t month2-app .
