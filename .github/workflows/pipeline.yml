@@ -5,6 +5,9 @@ on: [push]
 jobs:
   security-scan:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -12,7 +15,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-key: ${{ runner.os }}-pip-
 
       - name: Install Bandit
         run: pip install bandit
@@ -20,11 +30,16 @@ jobs:
       - name: Run Bandit (Python security lint)
         run: bandit -r . -x ./.git
 
+      - name: Test secret usage
+        env:
+          MY_SECRET: ${{ secrets.DEMO_SECRET }}
+        run: echo "Secret loaded (length: ${#MY_SECRET})"
+
       - name: Build Docker image
         run: docker build -t month2-app .
 
       - name: Run Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@v0.36.0	
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: 'month2-app'
           severity: 'CRITICAL,HIGH'
