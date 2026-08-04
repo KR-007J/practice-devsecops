@@ -9,6 +9,7 @@ A hands-on DevSecOps portfolio covering containerized application security, CI/C
 
 ```
 .
+├── month1-toolkit/                # Linux audit + hardening scripts (see its own README)
 ├── app.py                        # Flask application
 ├── dockerfile                    # Multi-stage-aware, non-root container build
 ├── requirements.txt              # Pinned Python dependencies
@@ -31,6 +32,14 @@ A hands-on DevSecOps portfolio covering containerized application security, CI/C
 ├── bad-pod-nolimits.yaml         # Test manifest: missing resource limits
 └── README.md
 ```
+
+---
+
+## Month 1 — Linux Security Toolkit
+
+A read-only Python audit script (SUID/SGID, world-writable files, UID=0 accounts) and a Bash hardening script, validated against real Lynis benchmark scans — including an honest account of a false-positive bug I found and fixed in the audit script, and why the hardening index did not move despite genuine config changes.
+
+Full writeup, code, and Lynis evidence: [month1-toolkit/](./month1-toolkit)
 
 ---
 
