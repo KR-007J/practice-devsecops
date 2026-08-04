@@ -2,8 +2,7 @@
 
 A hands-on DevSecOps portfolio covering containerized application security, CI/CD security automation, cloud IAM fundamentals, and Kubernetes admission control — built incrementally with real, verified evidence at each stage.
 
-**Status:** Months 2, 3, and 4 complete and verified below. Month 1 (Linux hardening toolkit) is planned but not yet built — it will be added once complete, not before.
-
+**Status:** Months 1 through 4 complete and verified below.
 ---
 
 ## Repository Structure (actual, as of this commit)
@@ -208,7 +207,6 @@ kubectl apply -f policy-no-privileged.yaml -f policy-require-nonroot.yaml -f pol
 
 ## What's Next
 
-- **Month 1** (planned): Linux hardening toolkit — SUID/permission audit script + Lynis-validated hardening. Not yet built; will be added with real before/after evidence once complete.
 - **Month 5** (planned): AI Security — OWASP LLM Top 10 threat modeling applied to a RAG chatbot architecture.
 - Move IAM/VPC work from LocalStack to a real AWS account (via AWS Educate) to validate genuine policy enforcement.
 - Add SBOM generation (Syft) and image signing (Cosign) to the CI/CD pipeline.
