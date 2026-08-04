@@ -1,0 +1,579 @@
+{
+  "scan_time_utc": "2026-08-04T11:09:20.783230+00:00",
+  "hostname": "lenovoloq",
+  "suid_sgid_binaries": [
+    {
+      "path": "/usr/bin/ksu",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/unix_chkpwd",
+      "suid": true,
+      "sgid": true,
+      "permissions": "0o6755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/chfn",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/chsh",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/mount",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/newgrp",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/su",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/umount",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/wall",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/write",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/sudo",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/pkexec",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/nvidia-modprobe",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/fusermount3",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/plocate",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/mount.cifs",
+      "suid": true,
+      "sgid": true,
+      "permissions": "0o6755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/mount.nfs",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4711",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/chage",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/gpasswd",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/bin/passwd",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/ksu",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/unix_chkpwd",
+      "suid": true,
+      "sgid": true,
+      "permissions": "0o6755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/chfn",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/chsh",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/mount",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/newgrp",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/su",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/umount",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/wall",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/write",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/sudo",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/pkexec",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/nvidia-modprobe",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/fusermount3",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/plocate",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/mount.cifs",
+      "suid": true,
+      "sgid": true,
+      "permissions": "0o6755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/mount.nfs",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4711",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/chage",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/gpasswd",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/usr/sbin/passwd",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/ksu",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/unix_chkpwd",
+      "suid": true,
+      "sgid": true,
+      "permissions": "0o6755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/chfn",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/chsh",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/mount",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/newgrp",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/su",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/umount",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/wall",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/write",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/sudo",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/pkexec",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/nvidia-modprobe",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/fusermount3",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/plocate",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/mount.cifs",
+      "suid": true,
+      "sgid": true,
+      "permissions": "0o6755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/mount.nfs",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4711",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/chage",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/gpasswd",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/bin/passwd",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/ksu",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/unix_chkpwd",
+      "suid": true,
+      "sgid": true,
+      "permissions": "0o6755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/chfn",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/chsh",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/mount",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/newgrp",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/su",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/umount",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/wall",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/write",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/sudo",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/pkexec",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/nvidia-modprobe",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/fusermount3",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/plocate",
+      "suid": false,
+      "sgid": true,
+      "permissions": "0o2755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/mount.cifs",
+      "suid": true,
+      "sgid": true,
+      "permissions": "0o6755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/mount.nfs",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4711",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/chage",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/gpasswd",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    },
+    {
+      "path": "/sbin/passwd",
+      "suid": true,
+      "sgid": false,
+      "permissions": "0o4755",
+      "owner_uid": 0
+    }
+  ],
+  "world_writable_files": [],
+  "uid_zero_accounts": [
+    {
+      "username": "root",
+      "uid": 0,
+      "shell": "/usr/bin/bash"
+    }
+  ],
+  "summary": {
+    "suid_sgid_count": 80,
+    "world_writable_count": 0,
+    "uid_zero_count": 1
+  }
+}
