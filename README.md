@@ -2,7 +2,7 @@
 
 A hands-on DevSecOps portfolio covering containerized application security, CI/CD security automation, cloud IAM fundamentals, and Kubernetes admission control — built incrementally with real, verified evidence at each stage.
 
-**Status:** Months 1 through 4 complete and verified below.
+**Status:** Months 1 through 5 complete and verified below.
 ---
 
 ## Repository Structure (actual, as of this commit)
@@ -10,6 +10,7 @@ A hands-on DevSecOps portfolio covering containerized application security, CI/C
 ```
 .
 ├── month1-toolkit/                # Linux audit + hardening scripts (see its own README)
+├── month5-ai-security/            # AI prompt injection PoC + OWASP LLM Top 10 (see its own README)
 ├── app.py                        # Flask application
 ├── dockerfile                    # Multi-stage-aware, non-root container build
 ├── requirements.txt              # Pinned Python dependencies
@@ -40,6 +41,14 @@ A hands-on DevSecOps portfolio covering containerized application security, CI/C
 A read-only Python audit script (SUID/SGID, world-writable files, UID=0 accounts) and a Bash hardening script, validated against real Lynis benchmark scans — including an honest account of a false-positive bug I found and fixed in the audit script, and why the hardening index did not move despite genuine config changes.
 
 Full writeup, code, and Lynis evidence: [month1-toolkit/](./month1-toolkit)
+
+---
+
+## Month 5 — AI Security (OWASP LLM Top 10)
+
+A demonstrated, working proof-of-concept of indirect prompt injection against a Gemini-powered document summarizer — the vulnerability actually reproduced, then actually mitigated, with real model output as evidence. Paired with a formal OWASP LLM Top 10 + STRIDE threat model.
+
+Full writeup, code, and proof-of-concept output: [month5-ai-security/](./month5-ai-security)
 
 ---
 
