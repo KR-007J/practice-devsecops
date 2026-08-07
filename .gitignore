@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 .env
+month5-ai-security/.env
+month5-ai-security/venv/
